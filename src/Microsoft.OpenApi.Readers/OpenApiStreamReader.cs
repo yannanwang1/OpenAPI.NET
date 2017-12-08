@@ -78,5 +78,7 @@ namespace Microsoft.OpenApi.Readers
                     return OpenApiV3Deserializer.LoadOpenApi(rootNode);
             }
         }
+
+        
     }
 }

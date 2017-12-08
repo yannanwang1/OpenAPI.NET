@@ -3,6 +3,8 @@
 //  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
 // ------------------------------------------------------------
 
+using Microsoft.OpenApi.Interfaces;
+using Microsoft.OpenApi.Models;
 using SharpYaml.Serialization;
 
 namespace Microsoft.OpenApi.Readers.ParseNodes
@@ -37,5 +39,6 @@ namespace Microsoft.OpenApi.Readers.ParseNodes
         {
             return new MapNode(Context, Diagnostic, (YamlMappingNode)_yamlDocument.RootNode);
         }
+
     }
 }

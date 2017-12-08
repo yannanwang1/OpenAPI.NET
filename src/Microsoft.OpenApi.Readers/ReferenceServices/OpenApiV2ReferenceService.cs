@@ -12,6 +12,8 @@ using Microsoft.OpenApi.Readers.ParseNodes;
 using Microsoft.OpenApi.Readers.Properties;
 using Microsoft.OpenApi.Readers.V2;
 using Microsoft.OpenApi.Readers.V3;
+using SharpYaml.Serialization;
+using System.IO;
 
 namespace Microsoft.OpenApi.Readers.ReferenceServices
 {
@@ -23,6 +25,8 @@ namespace Microsoft.OpenApi.Readers.ReferenceServices
         private readonly RootNode _rootNode;
 
         private readonly List<OpenApiTag> _tags = new List<OpenApiTag>();
+
+        private readonly IStreamLoader streamLoader = new ExternalDocumentLoader();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OpenApiV2ReferenceService"/> class.
@@ -56,10 +60,26 @@ namespace Microsoft.OpenApi.Readers.ReferenceServices
                 return false;
             }
 
+            RootNode targetNode;
+
             if (reference.IsExternal)
             {
+                IStreamLoader loader = new ExternalDocumentLoader();
+                var yamlStream = new YamlStream();
+
+                var doc = loader.Load(reference.ExternalResource);
+                yamlStream.Load(new StreamReader(x));
+
+
+                var yamlDocument = new YamlStream("{}");
+                var rootNode = new RootNode(_rootNode.Context, _rootNode.Diagnostic, yamlDocument);
+                var externalDocument = new OpenApiDocument();
+                
                 // TODO: need to read the external document and load the referenced object.
                 throw new NotImplementedException(SRResource.LoadReferencedObjectFromExternalNotImplmented);
+            } else
+            {
+                targetNode = _rootNode;
             }
 
             if (!reference.Type.HasValue)
@@ -86,7 +106,7 @@ namespace Microsoft.OpenApi.Readers.ReferenceServices
             var jsonPointer =
                 new JsonPointer("#/" + GetReferenceTypeV2Name(reference.Type.Value) + "/" + reference.Id);
 
-            var node = _rootNode.Find(jsonPointer);
+            var node = targetNode.Find(jsonPointer);
             
             switch (reference.Type)
             {

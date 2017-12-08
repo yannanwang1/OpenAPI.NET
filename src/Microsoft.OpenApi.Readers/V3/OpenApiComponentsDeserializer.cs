@@ -21,12 +21,39 @@ namespace Microsoft.OpenApi.Readers.V3
             {
                 "schemas", (o, n) =>
                 {
-                    o.Schemas = n.CreateMap(LoadSchema);
+                    o.Schemas = n.CreateMapWithReference(
+                    ReferenceType.Schema,
+                    "#/components/schemas/",
+                    LoadSchema);
                 }
             },
-            {"responses", (o, n) => o.Responses = n.CreateMap(LoadResponse)},
-            {"parameters", (o, n) => o.Parameters = n.CreateMap(LoadParameter)},
-            {"examples", (o, n) => o.Examples = n.CreateMap(LoadExample)},
+            {
+                "responses", (o, n) =>
+                {
+                    o.Responses = n.CreateMapWithReference(
+                    ReferenceType.Response,
+                    "#/components/responses",
+                    LoadResponse);
+                }
+            },
+            {
+                "parameters", (o, n) =>
+                {
+                    o.Parameters = n.CreateMapWithReference(
+                        ReferenceType.Parameter,
+                        "#/components/responses",
+                        LoadParameter);
+                }
+            },
+            {
+                "examples", (o, n) =>
+                {
+                    o.Examples = n.CreateMapWithReference(
+                        ReferenceType.Example,
+                        "#/components/examples",
+                        LoadExample);
+                }
+            },
             {"requestBodies", (o, n) => o.RequestBodies = n.CreateMap(LoadRequestBody)},
             {"headers", (o, n) => o.Headers = n.CreateMap(LoadHeader)},
             {"securitySchemes", (o, n) => o.SecuritySchemes = n.CreateMap(LoadSecurityScheme)},

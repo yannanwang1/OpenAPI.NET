@@ -45,7 +45,8 @@ namespace Microsoft.OpenApi.Readers
         }
 
         /// <summary>
-        /// Gets the referenced object.
+        /// Gets the referenced object, either from a cached copy in the referenceStore
+        /// or by using ReferenceService to create a new instance
         /// </summary>
         public IOpenApiReferenceable GetReferencedObject(
             OpenApiDiagnostic diagnostic,
