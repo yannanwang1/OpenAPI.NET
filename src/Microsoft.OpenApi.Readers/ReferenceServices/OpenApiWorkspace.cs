@@ -61,7 +61,8 @@ namespace Microsoft.OpenApi {
             // If there are errors, then load it into a Fragment
             var reader = new OpenApiStreamReader();
 
-            var openApiDocument = reader.Read(stream);
+            var diagnostic = new OpenApiDiagnostic();
+            var openApiDocument = reader.Read(memoryStream, out diagnostic);
 
         }
 

@@ -24,7 +24,7 @@ namespace Microsoft.OpenApi.Readers.ReferenceServices
 
         private readonly List<OpenApiTag> _tags = new List<OpenApiTag>();
 
-        private readonly IStreamLoader streamLoader = new ExternalDocumentLoader();
+        private OpenApiWorkspace _workspace = new OpenApiWorkspace();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OpenApiV2ReferenceService"/> class.
@@ -62,16 +62,9 @@ namespace Microsoft.OpenApi.Readers.ReferenceServices
 
             if (reference.IsExternal)
             {
-                IStreamLoader loader = new ExternalDocumentLoader();
-                var yamlStream = new YamlStream();
-
-                var doc = loader.Load(reference.ExternalResource);
-                yamlStream.Load(new StreamReader(x));
-
-
-                var yamlDocument = new YamlStream("{}");
-                var rootNode = new RootNode(_rootNode.Context, _rootNode.Diagnostic, yamlDocument);
-                var externalDocument = new OpenApiDocument();
+                
+                var externalDocument = _workspace.LoadAsync(reference.ExternalResource); 
+                
                 
                 // TODO: need to read the external document and load the referenced object.
                 throw new NotImplementedException(SRResource.LoadReferencedObjectFromExternalNotImplmented);

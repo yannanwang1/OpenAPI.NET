@@ -127,7 +127,6 @@ namespace Microsoft.OpenApi.Readers.Tests
 
             var expected = new OpenApiDocument()
             {
-                SpecVersion = new Version(3, 0, 0),
                 Info = new OpenApiInfo()
                 {
                     Version = "1.0.0",
@@ -572,7 +571,6 @@ namespace Microsoft.OpenApi.Readers.Tests
 
             var expected = new OpenApiDocument()
             {
-                SpecVersion = new Version(3, 0, 0),
                 Info = new OpenApiInfo()
                 {
                     Version = "1.0.0",
