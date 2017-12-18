@@ -1,7 +1,5 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
 using System.Collections.Generic;
 using Microsoft.OpenApi.Any;
@@ -33,7 +31,7 @@ namespace Microsoft.OpenApi.Models
         /// REQUIRED. The location of the parameter.
         /// Possible values are "query", "header", "path" or "cookie".
         /// </summary>
-        public ParameterLocation In { get; set; }
+        public ParameterLocation? In { get; set; }
 
         /// <summary>
         /// A brief description of the parameter. This could contain examples of use.
@@ -98,7 +96,7 @@ namespace Microsoft.OpenApi.Models
         /// Furthermore, if referencing a schema which contains an example,
         /// the examples value SHALL override the example provided by the schema.
         /// </summary>
-        public IList<OpenApiExample> Examples { get; set; }
+        public IList<OpenApiExample> Examples { get; set; } = new List<OpenApiExample>();
 
         /// <summary>
         /// Example of the media type. The example SHOULD match the specified schema and encoding properties
@@ -119,12 +117,12 @@ namespace Microsoft.OpenApi.Models
         /// When example or examples are provided in conjunction with the schema object,
         /// the example MUST follow the prescribed serialization strategy for the parameter.
         /// </summary>
-        public IDictionary<string, OpenApiMediaType> Content { get; set; }
+        public IDictionary<string, OpenApiMediaType> Content { get; set; } = new Dictionary<string, OpenApiMediaType>();
 
         /// <summary>
         /// This object MAY be extended with Specification Extensions.
         /// </summary>
-        public IDictionary<string, IOpenApiAny> Extensions { get; set; }
+        public IDictionary<string, IOpenApiAny> Extensions { get; set; } = new Dictionary<string, IOpenApiAny>();
 
         /// <summary>
         /// Serialize <see cref="OpenApiParameter"/> to Open Api v3.0
@@ -142,6 +140,14 @@ namespace Microsoft.OpenApi.Models
                 return;
             }
 
+            SerializeAsV3WithoutReference(writer);
+        }
+
+        /// <summary>
+        /// Serialize to OpenAPI V3 document without using reference.
+        /// </summary>
+        public void SerializeAsV3WithoutReference(IOpenApiWriter writer)
+        {
             writer.WriteStartObject();
 
             // name
@@ -205,6 +211,14 @@ namespace Microsoft.OpenApi.Models
                 return;
             }
 
+            SerializeAsV2WithoutReference(writer);
+        }
+
+        /// <summary>
+        /// Serialize to OpenAPI V2 document without using reference.
+        /// </summary>
+        public void SerializeAsV2WithoutReference(IOpenApiWriter writer)
+        {
             writer.WriteStartObject();
 
             // name
@@ -269,7 +283,7 @@ namespace Microsoft.OpenApi.Models
 
             writer.WriteEndObject();
         }
-        
+
         private bool IsBodyParameter()
         {
             if (this is BodyParameter)
@@ -290,7 +304,7 @@ namespace Microsoft.OpenApi.Models
             {
                 var parameter = (BodyParameter)this;
 
-                return 
+                return
                     parameter.Format.Contains("application/x-www-form-urlencoded") ||
                     parameter.Format.Contains("multipart/form-data");
             }

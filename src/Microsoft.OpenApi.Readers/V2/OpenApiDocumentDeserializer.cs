@@ -1,7 +1,5 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
 using System.Collections.Generic;
 using Microsoft.OpenApi.Extensions;
@@ -16,13 +14,12 @@ namespace Microsoft.OpenApi.Readers.V2
     /// </summary>
     internal static partial class OpenApiV2Deserializer
     {
-        public static FixedFieldMap<OpenApiDocument> OpenApiFixedFields = new FixedFieldMap<OpenApiDocument>
+        private static FixedFieldMap<OpenApiDocument> _openApiFixedFields = new FixedFieldMap<OpenApiDocument>
         {
             {
                 "swagger", (o, n) =>
                 {
-                    /* Ignore it */
-                }
+                } /* Version is valid field but we already parsed it */
             },
             {"info", (o, n) => o.Info = LoadInfo(n)},
             {"host", (o, n) => n.Context.SetTempStorage("host", n.GetScalarValue())},
@@ -31,10 +28,7 @@ namespace Microsoft.OpenApi.Readers.V2
                 "schemes", (o, n) => n.Context.SetTempStorage(
                     "schemes",
                     n.CreateSimpleList(
-                        s =>
-                        {
-                            return s.GetScalarValue();
-                        }))
+                        s => s.GetScalarValue()))
             },
             {
                 "consumes",
@@ -47,26 +41,62 @@ namespace Microsoft.OpenApi.Readers.V2
             {"paths", (o, n) => o.Paths = LoadPaths(n)},
             {
                 "definitions",
-                (o, n) => o.Components.Schemas = n.CreateMapWithReference(
-                    ReferenceType.Schema,
-                    "#/definitions/",
-                    LoadSchema)
+                (o, n) =>
+                {
+                    if (o.Components == null)
+                    {
+                        o.Components = new OpenApiComponents();
+                    }
+
+                    o.Components.Schemas = n.CreateMapWithReference(
+                        ReferenceType.Schema,
+                        "#/definitions/",
+                        LoadSchema);
+                }
             },
             {
                 "parameters",
-                (o, n) => o.Components.Parameters = n.CreateMapWithReference(
-                    ReferenceType.Parameter,
-                    "#/parameters/",
-                    LoadParameter)
+                (o, n) =>
+                {
+                    if (o.Components == null)
+                    {
+                        o.Components = new OpenApiComponents();
+                    }
+
+                    o.Components.Parameters = n.CreateMapWithReference(
+                        ReferenceType.Parameter,
+                        "#/parameters/",
+                        LoadParameter);
+                }
             },
-            {"responses", (o, n) => o.Components.Responses = n.CreateMap(LoadResponse)},
-            {"securityDefinitions", (o, n) => o.Components.SecuritySchemes = n.CreateMap(LoadSecurityScheme)},
+            {
+                "responses", (o, n) =>
+                {
+                    if (o.Components == null)
+                    {
+                        o.Components = new OpenApiComponents();
+                    }
+
+                    o.Components.Responses = n.CreateMap(LoadResponse);
+                }
+            },
+            {
+                "securityDefinitions", (o, n) =>
+                {
+                    if (o.Components == null)
+                    {
+                        o.Components = new OpenApiComponents();
+                    }
+
+                    o.Components.SecuritySchemes = n.CreateMap(LoadSecurityScheme);
+                }
+            },
             {"security", (o, n) => o.SecurityRequirements = n.CreateList(LoadSecurityRequirement)},
             {"tags", (o, n) => o.Tags = n.CreateList(LoadTag)},
             {"externalDocs", (o, n) => o.ExternalDocs = LoadExternalDocs(n)}
         };
 
-        public static PatternFieldMap<OpenApiDocument> OpenApiPatternFields = new PatternFieldMap<OpenApiDocument>
+        private static PatternFieldMap<OpenApiDocument> _openApiPatternFields = new PatternFieldMap<OpenApiDocument>
         {
             // We have no semantics to verify X- nodes, therefore treat them as just values.
             {s => s.StartsWith("x-"), (o, p, n) => o.AddExtension(p, n.CreateAny())}
@@ -97,7 +127,7 @@ namespace Microsoft.OpenApi.Readers.V2
 
             var required = new List<string> {"info", "swagger", "paths"};
 
-            ParseMap(openApiNode, openApidoc, OpenApiFixedFields, OpenApiPatternFields, required);
+            ParseMap(openApiNode, openApidoc, _openApiFixedFields, _openApiPatternFields, required);
 
             ReportMissing(openApiNode, required);
 

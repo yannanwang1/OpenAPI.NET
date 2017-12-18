@@ -1,7 +1,5 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
 using System.IO;
 
@@ -32,7 +30,7 @@ namespace Microsoft.OpenApi.Writers
         }
 
         /// <summary>
-        /// Base Indentation Level. 
+        /// Base Indentation Level.
         /// This denotes how many indentations are needed for the property in the base object.
         /// </summary>
         protected override int BaseIndentation => 1;
@@ -150,12 +148,13 @@ namespace Microsoft.OpenApi.Writers
             Writer.WriteLine();
 
             currentScope.ObjectCount++;
-            
+
             WriteIndentation();
 
-            Writer.Write(WriterConstants.QuoteCharacter);
+            name = name.GetJsonCompatibleString();
+
             Writer.Write(name);
-            Writer.Write(WriterConstants.QuoteCharacter);
+
             Writer.Write(WriterConstants.NameValueSeparator);
         }
 
@@ -167,11 +166,9 @@ namespace Microsoft.OpenApi.Writers
         {
             WriteValueSeparator();
 
-            value = value.Replace("\n", "\\n");
+            value = value.GetJsonCompatibleString();
 
-            Writer.Write(WriterConstants.QuoteCharacter);
             Writer.Write(value);
-            Writer.Write(WriterConstants.QuoteCharacter);
         }
 
         /// <summary>
@@ -179,6 +176,8 @@ namespace Microsoft.OpenApi.Writers
         /// </summary>
         public override void WriteNull()
         {
+            WriteValueSeparator();
+
             Writer.Write("null");
         }
 
@@ -187,12 +186,12 @@ namespace Microsoft.OpenApi.Writers
         /// </summary>
         protected override void WriteValueSeparator()
         {
-            if (scopes.Count == 0)
+            if (Scopes.Count == 0)
             {
                 return;
             }
 
-            var currentScope = scopes.Peek();
+            var currentScope = Scopes.Peek();
 
             if (currentScope.Type == ScopeType.Array)
             {

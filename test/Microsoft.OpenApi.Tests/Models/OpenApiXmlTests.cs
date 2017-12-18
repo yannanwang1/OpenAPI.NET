@@ -1,7 +1,5 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
 using System;
 using System.Collections.Generic;
@@ -13,9 +11,7 @@ using Xunit;
 
 namespace Microsoft.OpenApi.Tests.Models
 {
-    /// <summary>
-    /// Test cases for <see cref="OpenApiXml"/>.
-    /// </summary>
+    [Collection("DefaultSettings")]
     public class OpenApiXmlTests
     {
         public static OpenApiXml AdvancedXml = new OpenApiXml
@@ -34,9 +30,9 @@ namespace Microsoft.OpenApi.Tests.Models
         public static OpenApiXml BasicXml = new OpenApiXml();
 
         [Theory]
-        [InlineData(OpenApiSpecVersion.OpenApi3_0, OpenApiFormat.Json)]
+        [InlineData(OpenApiSpecVersion.OpenApi3_0_0, OpenApiFormat.Json)]
         [InlineData(OpenApiSpecVersion.OpenApi2_0, OpenApiFormat.Json)]
-        [InlineData(OpenApiSpecVersion.OpenApi3_0, OpenApiFormat.Yaml)]
+        [InlineData(OpenApiSpecVersion.OpenApi3_0_0, OpenApiFormat.Yaml)]
         [InlineData(OpenApiSpecVersion.OpenApi2_0, OpenApiFormat.Yaml)]
         public void SerializeBasicXmlWorks(
             OpenApiSpecVersion version,
@@ -51,7 +47,7 @@ namespace Microsoft.OpenApi.Tests.Models
         }
 
         [Theory]
-        [InlineData(OpenApiSpecVersion.OpenApi3_0)]
+        [InlineData(OpenApiSpecVersion.OpenApi3_0_0)]
         [InlineData(OpenApiSpecVersion.OpenApi2_0)]
         public void SerializeAdvancedXmlAsJsonWorks(OpenApiSpecVersion version)
         {
@@ -76,7 +72,7 @@ namespace Microsoft.OpenApi.Tests.Models
         }
 
         [Theory]
-        [InlineData(OpenApiSpecVersion.OpenApi3_0)]
+        [InlineData(OpenApiSpecVersion.OpenApi3_0_0)]
         [InlineData(OpenApiSpecVersion.OpenApi2_0)]
         public void SerializeAdvancedXmlAsYamlWorks(OpenApiSpecVersion version)
         {

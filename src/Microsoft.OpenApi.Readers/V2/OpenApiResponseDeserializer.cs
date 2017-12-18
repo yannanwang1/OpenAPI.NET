@@ -1,7 +1,5 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
 using System.Collections.Generic;
 using Microsoft.OpenApi.Extensions;
@@ -16,7 +14,7 @@ namespace Microsoft.OpenApi.Readers.V2
     /// </summary>
     internal static partial class OpenApiV2Deserializer
     {
-        private static readonly FixedFieldMap<OpenApiResponse> ResponseFixedFields = new FixedFieldMap<OpenApiResponse>
+        private static readonly FixedFieldMap<OpenApiResponse> _responseFixedFields = new FixedFieldMap<OpenApiResponse>
         {
             {
                 "description", (o, n) =>
@@ -33,7 +31,7 @@ namespace Microsoft.OpenApi.Readers.V2
             {
                 "examples", (o, n) =>
                 {
-                    /*o.Examples = ((ListNode)n).Select(s=> new AnyNode(s)).ToList();*/
+                    LoadExamples(o, n);
                 }
             },
             {
@@ -44,7 +42,7 @@ namespace Microsoft.OpenApi.Readers.V2
             },
         };
 
-        private static readonly PatternFieldMap<OpenApiResponse> ResponsePatternFields =
+        private static readonly PatternFieldMap<OpenApiResponse> _responsePatternFields =
             new PatternFieldMap<OpenApiResponse>
             {
                 {s => s.StartsWith("x-"), (o, p, n) => o.AddExtension(p, n.CreateAny())}
@@ -66,9 +64,40 @@ namespace Microsoft.OpenApi.Readers.V2
                     {
                         Schema = schema
                     };
+
+                    response.Content.Add(mt, mediaType);
                 }
-                response.Content.Add(mt, mediaType);
             }
+        }
+
+        private static void LoadExamples(OpenApiResponse response, ParseNode node)
+        {
+            var mapNode = node.CheckMapNode("examples");
+            foreach (var mediaTypeNode in mapNode)
+            {
+                LoadExample(response, mediaTypeNode.Name, mediaTypeNode.Value);
+            }
+        }
+
+        private static void LoadExample(OpenApiResponse response, string mediaType, ParseNode node)
+        {
+            var exampleNode = node.CreateAny();
+
+            if (response.Content == null)
+            {
+                response.Content = new Dictionary<string, OpenApiMediaType>();
+            }
+            OpenApiMediaType mediaTypeObject;
+            if (response.Content.ContainsKey(mediaType))
+            {
+                mediaTypeObject = response.Content[mediaType];
+            }
+            else
+            {
+                mediaTypeObject = new OpenApiMediaType();
+                response.Content.Add(mediaType, mediaTypeObject);
+            }
+            mediaTypeObject.Example = exampleNode;
         }
 
         public static OpenApiResponse LoadResponse(ParseNode node)
@@ -84,7 +113,7 @@ namespace Microsoft.OpenApi.Readers.V2
             var response = new OpenApiResponse();
             foreach (var property in mapNode)
             {
-                property.ParseField(response, ResponseFixedFields, ResponsePatternFields);
+                property.ParseField(response, _responseFixedFields, _responsePatternFields);
             }
 
             ProcessProduces(response, node.Context);

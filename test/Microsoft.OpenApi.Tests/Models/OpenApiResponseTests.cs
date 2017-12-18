@@ -1,72 +1,113 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
+using System.IO;
 using FluentAssertions;
 using Microsoft.OpenApi.Extensions;
 using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Writers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.OpenApi.Tests.Models
 {
-    /// <summary>
-    /// Test cases for <see cref="OpenApiResponse"/>.
-    /// </summary>
+    [Collection("DefaultSettings")]
     public class OpenApiResponseTests
     {
-        public static OpenApiResponse AdvancedResponse;
-        public static OpenApiResponse BasicResponse;
+        public static OpenApiResponse BasicResponse = new OpenApiResponse();
 
-        static OpenApiResponseTests()
+        public static OpenApiResponse AdvancedResponse = new OpenApiResponse
         {
-            BasicResponse = new OpenApiResponse();
-            AdvancedResponse = new OpenApiResponse
+            Description = "A complex object array response",
+            Content =
             {
-                Description = "A complex object array response"
-            };
-
-            AdvancedResponse.AddMediaType(
-                "text/plain",
-                m =>
+                ["text/plain"] = new OpenApiMediaType
                 {
-                    m.Schema = new OpenApiSchema
+                    Schema = new OpenApiSchema
                     {
                         Type = "array",
                         Items = new OpenApiSchema
                         {
                             Reference = new OpenApiReference {Type = ReferenceType.Schema, Id = "customType"}
                         }
-                    };
-                });
-
-            AdvancedResponse.AddHeader(
-                "X-Rate-Limit-Limit",
-                h =>
+                    }
+                }
+            },
+            Headers =
+            {
+                ["X-Rate-Limit-Limit"] = new OpenApiHeader
                 {
-                    h.Description = "The number of allowed requests in the current period";
-                    h.Schema = new OpenApiSchema
+                    Description = "The number of allowed requests in the current period",
+                    Schema = new OpenApiSchema
                     {
                         Type = "integer"
-                    };
-                });
-
-            AdvancedResponse.AddHeader(
-                "X-Rate-Limit-Reset",
-                h =>
+                    }
+                },
+                ["X-Rate-Limit-Reset"] = new OpenApiHeader
                 {
-                    h.Description = "The number of seconds left in the current period";
-                    h.Schema = new OpenApiSchema
+                    Description = "The number of seconds left in the current period",
+                    Schema = new OpenApiSchema
                     {
                         Type = "integer"
-                    };
-                });
+                    }
+                },
+            }
+        };
+
+        public static OpenApiResponse ReferencedResponse = new OpenApiResponse
+        {
+            Reference = new OpenApiReference
+            {
+                Type = ReferenceType.Response,
+                Id = "example1"
+            },
+            Description = "A complex object array response",
+            Content =
+            {
+                ["text/plain"] = new OpenApiMediaType
+                {
+                    Schema = new OpenApiSchema
+                    {
+                        Type = "array",
+                        Items = new OpenApiSchema
+                        {
+                            Reference = new OpenApiReference {Type = ReferenceType.Schema, Id = "customType"}
+                        }
+                    }
+                }
+            },
+            Headers =
+            {
+                ["X-Rate-Limit-Limit"] = new OpenApiHeader
+                {
+                    Description = "The number of allowed requests in the current period",
+                    Schema = new OpenApiSchema
+                    {
+                        Type = "integer"
+                    }
+                },
+                ["X-Rate-Limit-Reset"] = new OpenApiHeader
+                {
+                    Description = "The number of seconds left in the current period",
+                    Schema = new OpenApiSchema
+                    {
+                        Type = "integer"
+                    }
+                },
+            }
+        };
+
+        private readonly ITestOutputHelper _output;
+
+        public OpenApiResponseTests(ITestOutputHelper output)
+        {
+            _output = output;
         }
 
         [Theory]
-        [InlineData(OpenApiSpecVersion.OpenApi3_0, OpenApiFormat.Json)]
+        [InlineData(OpenApiSpecVersion.OpenApi3_0_0, OpenApiFormat.Json)]
         [InlineData(OpenApiSpecVersion.OpenApi2_0, OpenApiFormat.Json)]
-        [InlineData(OpenApiSpecVersion.OpenApi3_0, OpenApiFormat.Yaml)]
+        [InlineData(OpenApiSpecVersion.OpenApi3_0_0, OpenApiFormat.Yaml)]
         [InlineData(OpenApiSpecVersion.OpenApi2_0, OpenApiFormat.Yaml)]
         public void SerializeBasicResponseWorks(
             OpenApiSpecVersion version,
@@ -112,7 +153,7 @@ namespace Microsoft.OpenApi.Tests.Models
 }";
 
             // Act
-            var actual = AdvancedResponse.SerializeAsJson(OpenApiSpecVersion.OpenApi3_0);
+            var actual = AdvancedResponse.SerializeAsJson(OpenApiSpecVersion.OpenApi3_0_0);
 
             // Assert
             actual = actual.MakeLineBreaksEnvironmentNeutral();
@@ -143,7 +184,7 @@ content:
         $ref: '#/components/schemas/customType'";
 
             // Act
-            var actual = AdvancedResponse.SerializeAsYaml(OpenApiSpecVersion.OpenApi3_0);
+            var actual = AdvancedResponse.SerializeAsYaml(OpenApiSpecVersion.OpenApi3_0_0);
 
             // Assert
             actual = actual.MakeLineBreaksEnvironmentNeutral();
@@ -210,6 +251,138 @@ headers:
 
             // Act
             var actual = AdvancedResponse.SerializeAsYaml(OpenApiSpecVersion.OpenApi2_0);
+
+            // Assert
+            actual = actual.MakeLineBreaksEnvironmentNeutral();
+            expected = expected.MakeLineBreaksEnvironmentNeutral();
+            actual.Should().Be(expected);
+        }
+
+        [Fact]
+        public void SerializeReferencedResponseAsV3JsonWorks()
+        {
+            // Arrange
+            var outputStringWriter = new StringWriter();
+            var writer = new OpenApiJsonWriter(outputStringWriter);
+            var expected =
+                @"{
+  ""$ref"": ""#/components/responses/example1""
+}";
+
+            // Act
+            ReferencedResponse.SerializeAsV3(writer);
+            writer.Flush();
+            var actual = outputStringWriter.GetStringBuilder().ToString();
+
+            // Assert
+            actual = actual.MakeLineBreaksEnvironmentNeutral();
+            expected = expected.MakeLineBreaksEnvironmentNeutral();
+            actual.Should().Be(expected);
+        }
+
+        [Fact]
+        public void SerializeReferencedResponseAsV3JsonWithoutReferenceWorks()
+        {
+            // Arrange
+            var outputStringWriter = new StringWriter();
+            var writer = new OpenApiJsonWriter(outputStringWriter);
+            var expected =
+                @"{
+  ""description"": ""A complex object array response"",
+  ""headers"": {
+    ""X-Rate-Limit-Limit"": {
+      ""description"": ""The number of allowed requests in the current period"",
+      ""schema"": {
+        ""type"": ""integer""
+      }
+    },
+    ""X-Rate-Limit-Reset"": {
+      ""description"": ""The number of seconds left in the current period"",
+      ""schema"": {
+        ""type"": ""integer""
+      }
+    }
+  },
+  ""content"": {
+    ""text/plain"": {
+      ""schema"": {
+        ""type"": ""array"",
+        ""items"": {
+          ""$ref"": ""#/components/schemas/customType""
+        }
+      }
+    }
+  }
+}";
+
+            // Act
+            ReferencedResponse.SerializeAsV3WithoutReference(writer);
+            writer.Flush();
+            var actual = outputStringWriter.GetStringBuilder().ToString();
+
+            // Assert
+            actual = actual.MakeLineBreaksEnvironmentNeutral();
+            expected = expected.MakeLineBreaksEnvironmentNeutral();
+            actual.Should().Be(expected);
+        }
+
+        [Fact]
+        public void SerializeReferencedResponseAsV2JsonWorks()
+        {
+            // Arrange
+            var outputStringWriter = new StringWriter();
+            var writer = new OpenApiJsonWriter(outputStringWriter);
+            var expected =
+                @"{
+  ""$ref"": ""#/responses/example1""
+}";
+
+            // Act
+            ReferencedResponse.SerializeAsV2(writer);
+            writer.Flush();
+            var actual = outputStringWriter.GetStringBuilder().ToString();
+
+            // Assert
+            actual = actual.MakeLineBreaksEnvironmentNeutral();
+            expected = expected.MakeLineBreaksEnvironmentNeutral();
+            actual.Should().Be(expected);
+        }
+
+        [Fact]
+        public void SerializeReferencedResponseAsV2JsonWithoutReferenceWorks()
+        {
+            // Arrange
+            var outputStringWriter = new StringWriter();
+            var writer = new OpenApiJsonWriter(outputStringWriter);
+            var expected =
+                @"{
+  ""description"": ""A complex object array response"",
+  ""schema"": {
+    ""type"": ""array"",
+    ""items"": {
+      ""$ref"": ""#/definitions/customType""
+    }
+  },
+  ""headers"": {
+    ""X-Rate-Limit-Limit"": {
+      ""description"": ""The number of allowed requests in the current period"",
+      ""schema"": {
+        ""type"": ""integer""
+      }
+    },
+    ""X-Rate-Limit-Reset"": {
+      ""description"": ""The number of seconds left in the current period"",
+      ""schema"": {
+        ""type"": ""integer""
+      }
+    }
+  }
+}";
+
+            // Act
+            ReferencedResponse.SerializeAsV2WithoutReference(writer);
+            writer.Flush();
+            var actual = outputStringWriter.GetStringBuilder().ToString();
 
             // Assert
             actual = actual.MakeLineBreaksEnvironmentNeutral();

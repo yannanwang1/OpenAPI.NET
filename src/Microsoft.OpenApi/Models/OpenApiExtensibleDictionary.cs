@@ -1,7 +1,5 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
 using System.Collections.Generic;
 using Microsoft.OpenApi.Any;
@@ -14,13 +12,15 @@ namespace Microsoft.OpenApi.Models
     /// Generic dictionary type for Open API dictionary element.
     /// </summary>
     /// <typeparam name="T">The Open API element, <see cref="IOpenApiElement"/></typeparam>
-    public abstract class OpenApiExtensibleDictionary<T> : Dictionary<string, T>, IOpenApiSerializable, IOpenApiExtensible
+    public abstract class OpenApiExtensibleDictionary<T> : Dictionary<string, T>,
+        IOpenApiSerializable,
+        IOpenApiExtensible
         where T : IOpenApiSerializable
     {
         /// <summary>
         /// This object MAY be extended with Specification Extensions.
         /// </summary>
-        public IDictionary<string, IOpenApiAny> Extensions { get; set; }
+        public IDictionary<string, IOpenApiAny> Extensions { get; set; } = new Dictionary<string, IOpenApiAny>();
 
         /// <summary>
         /// Serialize to Open Api v3.0

@@ -1,7 +1,5 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
 using System.Collections.Generic;
 using Microsoft.OpenApi.Interfaces;
@@ -11,13 +9,13 @@ namespace Microsoft.OpenApi.Models
 {
     /// <summary>
     /// Security Requirement Object.
-    /// Each name MUST correspond to a security scheme which is declared in 
-    /// the Security Schemes under the Components Object. 
-    /// If the security scheme is of type "oauth2" or "openIdConnect", 
-    /// then the value is a list of scope names required for the execution. 
+    /// Each name MUST correspond to a security scheme which is declared in
+    /// the Security Schemes under the Components Object.
+    /// If the security scheme is of type "oauth2" or "openIdConnect",
+    /// then the value is a list of scope names required for the execution.
     /// For other security scheme types, the array MUST be empty.
     /// </summary>
-    public class OpenApiSecurityRequirement : Dictionary<OpenApiSecurityScheme, IList<string>>, 
+    public class OpenApiSecurityRequirement : Dictionary<OpenApiSecurityScheme, IList<string>>,
         IOpenApiSerializable
     {
         /// <summary>
@@ -46,6 +44,14 @@ namespace Microsoft.OpenApi.Models
             {
                 var securityScheme = securitySchemeAndScopesValuePair.Key;
                 var scopes = securitySchemeAndScopesValuePair.Value;
+
+                if (securityScheme.Reference == null)
+                {
+                    // Reaching this point means the reference to a specific OpenApiSecurityScheme fails.
+                    // We are not able to serialize this SecurityScheme/Scopes key value pair since we do not know what
+                    // string to output.
+                    continue;
+                }
 
                 securityScheme.SerializeAsV3(writer);
 
@@ -79,9 +85,17 @@ namespace Microsoft.OpenApi.Models
                 var securityScheme = securitySchemeAndScopesValuePair.Key;
                 var scopes = securitySchemeAndScopesValuePair.Value;
 
+                if (securityScheme.Reference == null)
+                {
+                    // Reaching this point means the reference to a specific OpenApiSecurityScheme fails.
+                    // We are not able to serialize this SecurityScheme/Scopes key value pair since we do not know what
+                    // string to output.
+                    continue;
+                }
+
                 securityScheme.SerializeAsV2(writer);
 
-                    writer.WriteStartArray();
+                writer.WriteStartArray();
 
                 foreach (var scope in scopes)
                 {

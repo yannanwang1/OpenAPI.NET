@@ -1,7 +1,5 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
 using System.Collections.Generic;
 using Microsoft.OpenApi.Interfaces;
@@ -12,7 +10,7 @@ namespace Microsoft.OpenApi.Models
     /// <summary>
     /// Discriminator object.
     /// </summary>
-    public class OpenApiDiscriminator : IOpenApiSerializable, IOpenApiElement
+    public class OpenApiDiscriminator : IOpenApiSerializable
     {
         /// <summary>
         /// REQUIRED. The name of the property in the payload that will hold the discriminator value.
@@ -22,7 +20,7 @@ namespace Microsoft.OpenApi.Models
         /// <summary>
         /// An object to hold mappings between payload values and schema names or references.
         /// </summary>
-        public IDictionary<string, string> Mapping { get; set; }
+        public IDictionary<string, string> Mapping { get; set; } = new Dictionary<string, string>();
 
         /// <summary>
         /// Serialize <see cref="OpenApiDiscriminator"/> to Open Api v3.0

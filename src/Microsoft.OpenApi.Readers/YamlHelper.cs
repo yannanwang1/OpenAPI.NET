@@ -1,7 +1,5 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
 using System.IO;
 using System.Linq;
@@ -28,6 +26,7 @@ namespace Microsoft.OpenApi.Readers
             var reader = new StringReader(yamlString);
             var yamlStream = new YamlStream();
             yamlStream.Load(reader);
+
             var yamlDocument = yamlStream.Documents.First();
             return yamlDocument.RootNode;
         }

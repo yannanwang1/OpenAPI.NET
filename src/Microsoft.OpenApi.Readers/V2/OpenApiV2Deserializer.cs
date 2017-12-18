@@ -1,7 +1,5 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +34,11 @@ namespace Microsoft.OpenApi.Readers.V2
 
         private static void ReportMissing(ParseNode node, IList<string> required)
         {
-            foreach (var error in required.Select(r => new OpenApiError("", $"{r} is a required property")).ToList())
+            foreach (var error in required.Select(
+                    r => new OpenApiError(
+                        node.Context.GetLocation(),
+                        $"{r} is a required property"))
+                .ToList())
             {
                 node.Diagnostic.Errors.Add(error);
             }

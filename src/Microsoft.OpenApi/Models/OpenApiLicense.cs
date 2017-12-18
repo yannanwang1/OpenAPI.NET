@@ -1,7 +1,5 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
 using System;
 using System.Collections.Generic;
@@ -17,9 +15,9 @@ namespace Microsoft.OpenApi.Models
     public class OpenApiLicense : IOpenApiSerializable, IOpenApiExtensible
     {
         /// <summary>
-        /// REQUIRED.The license name used for the API.
+        /// REQUIRED. The license name used for the API.
         /// </summary>
-        public string Name { get; set; } = OpenApiConstants.DefaultName;
+        public string Name { get; set; }
 
         /// <summary>
         /// The URL pointing to the contact information. MUST be in the format of a URL.
@@ -29,7 +27,7 @@ namespace Microsoft.OpenApi.Models
         /// <summary>
         /// This object MAY be extended with Specification Extensions.
         /// </summary>
-        public IDictionary<string, IOpenApiAny> Extensions { get; set; }
+        public IDictionary<string, IOpenApiAny> Extensions { get; set; } = new Dictionary<string, IOpenApiAny>();
 
         /// <summary>
         /// Serialize <see cref="OpenApiLicense"/> to Open Api v3.0

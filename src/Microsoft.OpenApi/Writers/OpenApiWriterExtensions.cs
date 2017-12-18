@@ -1,9 +1,8 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.OpenApi.Interfaces;
@@ -23,7 +22,7 @@ namespace Microsoft.OpenApi.Writers
         /// <param name="value">The property value.</param>
         public static void WriteProperty(this IOpenApiWriter writer, string name, string value)
         {
-            if (string.IsNullOrEmpty(value))
+            if (value == null)
             {
                 return;
             }
@@ -123,6 +122,12 @@ namespace Microsoft.OpenApi.Writers
         {
             if (value != null)
             {
+                var values = value as IEnumerable;
+                if (values != null && !values.GetEnumerator().MoveNext())
+                {
+                    return; // Don't render optional empty collections
+                }
+
                 writer.WriteRequiredObject(name, value, action);
             }
         }
@@ -149,6 +154,11 @@ namespace Microsoft.OpenApi.Writers
             {
                 action(writer, value);
             }
+            else
+            {
+                writer.WriteStartObject();
+                writer.WriteEndObject();
+            }
         }
 
         /// <summary>
@@ -161,7 +171,7 @@ namespace Microsoft.OpenApi.Writers
         public static void WriteOptionalCollection(
             this IOpenApiWriter writer,
             string name,
-            IEnumerable<string> elements,
+            IList<string> elements,
             Action<IOpenApiWriter, string> action)
         {
             if (elements != null && elements.Any())
@@ -181,7 +191,7 @@ namespace Microsoft.OpenApi.Writers
         public static void WriteOptionalCollection<T>(
             this IOpenApiWriter writer,
             string name,
-            IEnumerable<T> elements,
+            IList<T> elements,
             Action<IOpenApiWriter, T> action)
             where T : IOpenApiElement
         {
@@ -222,7 +232,7 @@ namespace Microsoft.OpenApi.Writers
             IDictionary<string, string> elements,
             Action<IOpenApiWriter, string> action)
         {
-            if (elements != null)
+            if (elements != null && elements.Any())
             {
                 writer.WriteMapInternal(name, elements, action);
             }
@@ -259,7 +269,7 @@ namespace Microsoft.OpenApi.Writers
             Action<IOpenApiWriter, T> action)
             where T : IOpenApiElement
         {
-            if (elements != null)
+            if (elements != null && elements.Any())
             {
                 writer.WriteMapInternal(name, elements, action);
             }
@@ -297,7 +307,14 @@ namespace Microsoft.OpenApi.Writers
             {
                 foreach (var item in elements)
                 {
-                    action(writer, item);
+                    if (item != null)
+                    {
+                        action(writer, item);
+                    }
+                    else
+                    {
+                        writer.WriteNull();
+                    }
                 }
             }
 
@@ -320,7 +337,14 @@ namespace Microsoft.OpenApi.Writers
                 foreach (var item in elements)
                 {
                     writer.WritePropertyName(item.Key);
-                    action(writer, item.Value);
+                    if (item.Value != null)
+                    {
+                        action(writer, item.Value);
+                    }
+                    else
+                    {
+                        writer.WriteNull();
+                    }
                 }
             }
 

@@ -1,7 +1,5 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
 using System;
 using Microsoft.OpenApi.Exceptions;
@@ -12,7 +10,7 @@ namespace Microsoft.OpenApi.Expressions
     /// <summary>
     /// Base class for the Open API runtime expression.
     /// </summary>
-    public abstract class RuntimeExpression
+    public abstract class RuntimeExpression : IEquatable<RuntimeExpression>
     {
         /// <summary>
         /// The dollar sign prefix for a runtime expression.
@@ -31,14 +29,14 @@ namespace Microsoft.OpenApi.Expressions
         /// <returns>The built runtime expression object.</returns>
         public static RuntimeExpression Build(string expression)
         {
-            if (String.IsNullOrWhiteSpace(expression))
+            if (string.IsNullOrWhiteSpace(expression))
             {
                 throw Error.ArgumentNullOrWhiteSpace(nameof(expression));
             }
 
             if (!expression.StartsWith(Prefix))
             {
-                throw new OpenApiException(String.Format(SRResource.RuntimeExpressionMustBeginWithDollar, expression));
+                throw new OpenApiException(string.Format(SRResource.RuntimeExpressionMustBeginWithDollar, expression));
             }
 
             // $url
@@ -62,20 +60,44 @@ namespace Microsoft.OpenApi.Expressions
             // $request.
             if (expression.StartsWith(RequestExpression.Request))
             {
-                string subString = expression.Substring(RequestExpression.Request.Length);
-                SourceExpression source = SourceExpression.Build(subString);
+                var subString = expression.Substring(RequestExpression.Request.Length);
+                var source = SourceExpression.Build(subString);
                 return new RequestExpression(source);
             }
 
             // $response.
             if (expression.StartsWith(ResponseExpression.Response))
             {
-                string subString = expression.Substring(ResponseExpression.Response.Length);
-                SourceExpression source = SourceExpression.Build(subString);
+                var subString = expression.Substring(ResponseExpression.Response.Length);
+                var source = SourceExpression.Build(subString);
                 return new ResponseExpression(source);
             }
 
-            throw new OpenApiException(String.Format(SRResource.RuntimeExpressionHasInvalidFormat, expression));
+            throw new OpenApiException(string.Format(SRResource.RuntimeExpressionHasInvalidFormat, expression));
+        }
+
+        /// <summary>
+        /// GetHashCode implementation for IEquatable.
+        /// </summary>
+        public override int GetHashCode()
+        {
+            return Expression.GetHashCode();
+        }
+
+        /// <summary>
+        /// Equals implementation for IEquatable.
+        /// </summary>
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as RuntimeExpression);
+        }
+
+        /// <summary>
+        /// Equals implementation for object of the same type.
+        /// </summary>
+        public bool Equals(RuntimeExpression obj)
+        {
+            return obj != null && obj.Expression == Expression;
         }
     }
 }

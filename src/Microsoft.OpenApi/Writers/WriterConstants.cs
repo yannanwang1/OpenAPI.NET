@@ -1,7 +1,5 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
 namespace Microsoft.OpenApi.Writers
 {
@@ -84,11 +82,6 @@ namespace Microsoft.OpenApi.Writers
         /// The separator between the name and the value.
         /// </summary>
         internal const string NameValueSeparator = ": ";
-
-        /// <summary>
-        /// The quote character.
-        /// </summary>
-        internal const char QuoteCharacter = '"';
 
         /// <summary>
         /// The white space for empty object

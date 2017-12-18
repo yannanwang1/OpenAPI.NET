@@ -1,7 +1,5 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
 using System;
 using System.Collections.Generic;
@@ -18,19 +16,14 @@ namespace Microsoft.OpenApi.Models
     public class OpenApiDocument : IOpenApiSerializable, IOpenApiExtensible
     {
         /// <summary>
-        /// REQUIRED.This string MUST be the semantic version number of the OpenAPI Specification version that the OpenAPI document uses.
-        /// </summary>
-        public Version SpecVersion { get; set; } = OpenApiConstants.DefaultVersion;
-
-        /// <summary>
         /// REQUIRED. Provides metadata about the API. The metadata MAY be used by tooling as required.
         /// </summary>
-        public OpenApiInfo Info { get; set; } = new OpenApiInfo();
+        public OpenApiInfo Info { get; set; }
 
         /// <summary>
         /// An array of Server Objects, which provide connectivity information to a target server.
         /// </summary>
-        public IList<OpenApiServer> Servers { get; set; }
+        public IList<OpenApiServer> Servers { get; set; } = new List<OpenApiServer>();
 
         /// <summary>
         /// REQUIRED. The available paths and operations for the API.
@@ -45,12 +38,13 @@ namespace Microsoft.OpenApi.Models
         /// <summary>
         /// A declaration of which security mechanisms can be used across the API.
         /// </summary>
-        public IList<OpenApiSecurityRequirement> SecurityRequirements { get; set; }
+        public IList<OpenApiSecurityRequirement> SecurityRequirements { get; set; } =
+            new List<OpenApiSecurityRequirement>();
 
         /// <summary>
         /// A list of tags used by the specification with additional metadata.
         /// </summary>
-        public IList<OpenApiTag> Tags { get; set; }
+        public IList<OpenApiTag> Tags { get; set; } = new List<OpenApiTag>();
 
         /// <summary>
         /// Additional external documentation.
@@ -60,10 +54,10 @@ namespace Microsoft.OpenApi.Models
         /// <summary>
         /// This object MAY be extended with Specification Extensions.
         /// </summary>
-        public IDictionary<string, IOpenApiAny> Extensions { get; set; }
+        public IDictionary<string, IOpenApiAny> Extensions { get; set; } = new Dictionary<string, IOpenApiAny>();
 
         /// <summary>
-        /// Serialize <see cref="OpenApiDocument"/> to Open Api v3.0.
+        /// Serialize <see cref="OpenApiDocument"/> to Open Api v3.0.0
         /// </summary>
         public void SerializeAsV3(IOpenApiWriter writer)
         {
@@ -75,7 +69,7 @@ namespace Microsoft.OpenApi.Models
             writer.WriteStartObject();
 
             // openapi
-            writer.WriteProperty(OpenApiConstants.OpenApi, SpecVersion.ToString());
+            writer.WriteProperty(OpenApiConstants.OpenApi, "3.0.0");
 
             // info
             writer.WriteRequiredObject(OpenApiConstants.Info, Info, (w, i) => i.SerializeAsV3(w));
@@ -90,10 +84,13 @@ namespace Microsoft.OpenApi.Models
             writer.WriteOptionalObject(OpenApiConstants.Components, Components, (w, c) => c.SerializeAsV3(w));
 
             // security
-            writer.WriteOptionalCollection(OpenApiConstants.Security, SecurityRequirements, (w, s) => s.SerializeAsV3(w));
+            writer.WriteOptionalCollection(
+                OpenApiConstants.Security,
+                SecurityRequirements,
+                (w, s) => s.SerializeAsV3(w));
 
             // tags
-            writer.WriteOptionalCollection(OpenApiConstants.Tags, Tags, (w, t) => t.SerializeAsV3(w));
+            writer.WriteOptionalCollection(OpenApiConstants.Tags, Tags, (w, t) => t.SerializeAsV3WithoutReference(w));
 
             // external docs
             writer.WriteOptionalObject(OpenApiConstants.ExternalDocs, ExternalDocs, (w, e) => e.SerializeAsV3(w));
@@ -117,7 +114,7 @@ namespace Microsoft.OpenApi.Models
             writer.WriteStartObject();
 
             // swagger
-            writer.WriteProperty(OpenApiConstants.Swagger, SpecVersion.ToString());
+            writer.WriteProperty(OpenApiConstants.Swagger, "2.0");
 
             // info
             writer.WriteRequiredObject(OpenApiConstants.Info, Info, (w, i) => i.SerializeAsV2(w));
@@ -129,22 +126,25 @@ namespace Microsoft.OpenApi.Models
             writer.WriteRequiredObject(OpenApiConstants.Paths, Paths, (w, p) => p.SerializeAsV2(w));
 
             // definitions
-            writer.WriteOptionalMap(OpenApiConstants.Definitions, Components?.Schemas, (w, s) => s.SerializeAsV2(w));
+            writer.WriteOptionalMap(OpenApiConstants.Definitions, Components?.Schemas, (w, s) => s.SerializeAsV2WithoutReference(w));
 
             // parameters
-            writer.WriteOptionalMap(OpenApiConstants.Parameters, Components?.Parameters, (w, p) => p.SerializeAsV2(w));
+            writer.WriteOptionalMap(OpenApiConstants.Parameters, Components?.Parameters, (w, p) => p.SerializeAsV2WithoutReference(w));
 
             // responses
-            writer.WriteOptionalMap(OpenApiConstants.Responses, Components?.Responses, (w, r) => r.SerializeAsV2(w));
+            writer.WriteOptionalMap(OpenApiConstants.Responses, Components?.Responses, (w, r) => r.SerializeAsV2WithoutReference(w));
 
             // securityDefinitions
-            writer.WriteOptionalMap(OpenApiConstants.SecurityDefinitions, Components?.SecuritySchemes, (w, s) => s.SerializeAsV2(w));
+            writer.WriteOptionalMap(OpenApiConstants.SecurityDefinitions, Components?.SecuritySchemes, (w, s) => s.SerializeAsV2WithoutReference(w));
 
             // security
-            writer.WriteOptionalCollection(OpenApiConstants.Security, SecurityRequirements, (w, s) => s.SerializeAsV2(w));
+            writer.WriteOptionalCollection(
+                OpenApiConstants.Security,
+                SecurityRequirements,
+                (w, s) => s.SerializeAsV2(w));
 
             // tags
-            writer.WriteOptionalCollection(OpenApiConstants.Tags, Tags, (w, t) => t.SerializeAsV2(w));
+            writer.WriteOptionalCollection(OpenApiConstants.Tags, Tags, (w, t) => t.SerializeAsV2WithoutReference(w));
 
             // externalDocs
             writer.WriteOptionalObject(OpenApiConstants.ExternalDocs, ExternalDocs, (w, e) => e.SerializeAsV2(w));
@@ -165,7 +165,7 @@ namespace Microsoft.OpenApi.Models
             // Arbitrarily choose the first server given that V2 only allows 
             // one host, port, and base path.
             var firstServer = servers.First();
-            
+
             // Divide the URL in the Url property into host and basePath required in OpenAPI V2
             // The Url property cannotcontain path templating to be valid for V2 serialization.
             var firstServerUrl = new Uri(firstServer.Url);

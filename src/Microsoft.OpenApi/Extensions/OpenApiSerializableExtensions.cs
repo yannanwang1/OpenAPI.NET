@@ -1,7 +1,5 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
 using System.IO;
 using Microsoft.OpenApi.Exceptions;
@@ -101,7 +99,7 @@ namespace Microsoft.OpenApi.Extensions
 
             switch (specVersion)
             {
-                case OpenApiSpecVersion.OpenApi3_0:
+                case OpenApiSpecVersion.OpenApi3_0_0:
                     element.SerializeAsV3(writer);
                     break;
 

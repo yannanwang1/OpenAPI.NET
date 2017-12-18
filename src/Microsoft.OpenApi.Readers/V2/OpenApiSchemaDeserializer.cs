@@ -1,7 +1,5 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Extensions;
@@ -16,7 +14,7 @@ namespace Microsoft.OpenApi.Readers.V2
     /// </summary>
     internal static partial class OpenApiV2Deserializer
     {
-        private static readonly FixedFieldMap<OpenApiSchema> SchemaFixedFields = new FixedFieldMap<OpenApiSchema>
+        private static readonly FixedFieldMap<OpenApiSchema> _schemaFixedFields = new FixedFieldMap<OpenApiSchema>
         {
             {
                 "title", (o, n) =>
@@ -148,13 +146,13 @@ namespace Microsoft.OpenApi.Readers.V2
             {
                 "description", (o, n) =>
                 {
-                    o.Type = n.GetScalarValue();
+                    o.Description = n.GetScalarValue();
                 }
             },
             {
                 "format", (o, n) =>
                 {
-                    o.Description = n.GetScalarValue();
+                    o.Format = n.GetScalarValue();
                 }
             },
             {
@@ -163,15 +161,27 @@ namespace Microsoft.OpenApi.Readers.V2
                     o.Default = new OpenApiString(n.GetScalarValue());
                 }
             },
-
-            // discriminator
+            {
+                "discriminator", (o, n) =>
+                {
+                    o.Discriminator = new OpenApiDiscriminator
+                    {
+                        PropertyName = n.GetScalarValue()
+                    };
+                }
+            },
             {
                 "readOnly", (o, n) =>
                 {
                     o.ReadOnly = bool.Parse(n.GetScalarValue());
                 }
             },
-            // xml
+            {
+                "xml", (o, n) =>
+                {
+                    o.Xml = LoadXml(n);
+                }
+            },
             {
                 "externalDocs", (o, n) =>
                 {
@@ -181,12 +191,12 @@ namespace Microsoft.OpenApi.Readers.V2
             {
                 "example", (o, n) =>
                 {
-                    o.Example = new OpenApiString(n.GetScalarValue());
+                    o.Example = n.CreateAny();
                 }
             },
         };
 
-        private static readonly PatternFieldMap<OpenApiSchema> SchemaPatternFields = new PatternFieldMap<OpenApiSchema>
+        private static readonly PatternFieldMap<OpenApiSchema> _schemaPatternFields = new PatternFieldMap<OpenApiSchema>
         {
             {s => s.StartsWith("x-"), (o, p, n) => o.AddExtension(p, n.CreateAny())}
         };
@@ -205,7 +215,7 @@ namespace Microsoft.OpenApi.Readers.V2
 
             foreach (var propertyNode in mapNode)
             {
-                propertyNode.ParseField(domainObject, SchemaFixedFields, SchemaPatternFields);
+                propertyNode.ParseField(domainObject, _schemaFixedFields, _schemaPatternFields);
             }
 
             return domainObject;

@@ -1,7 +1,5 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See LICENSE in the repo root for license information.
-// ------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. 
 
 using System;
 using System.Collections.Generic;
@@ -13,77 +11,68 @@ using Xunit.Abstractions;
 
 namespace Microsoft.OpenApi.Tests.Models
 {
+    [Collection("DefaultSettings")]
     public class OpenApiOperationTests
     {
-        private readonly ITestOutputHelper _output;
+        public static OpenApiOperation BasicOperation = new OpenApiOperation();
 
-        public OpenApiOperationTests(ITestOutputHelper output)
-        {
-            _output = output;
-        }
-
-        public static OpenApiOperation BasicOperation = new OpenApiOperation()
-        {
-            Responses = new OpenApiResponses()
-        };
-
-        public static OpenApiOperation AdvancedOperation= new OpenApiOperation
+        public static OpenApiOperation AdvancedOperation = new OpenApiOperation
         {
             Summary = "summary1",
             Description = "operationDescription",
-            ExternalDocs = new OpenApiExternalDocs()
+            ExternalDocs = new OpenApiExternalDocs
             {
                 Description = "externalDocsDescription",
                 Url = new Uri("http://external.com")
             },
             OperationId = "operationId1",
-            Parameters = new List<OpenApiParameter>()
+            Parameters = new List<OpenApiParameter>
             {
-                new OpenApiParameter()
+                new OpenApiParameter
                 {
                     In = ParameterLocation.Path,
                     Name = "parameter1",
                 },
-                new OpenApiParameter()
+                new OpenApiParameter
                 {
                     In = ParameterLocation.Header,
                     Name = "parameter2"
                 }
             },
-            RequestBody = new OpenApiRequestBody()
+            RequestBody = new OpenApiRequestBody
             {
                 Description = "description2",
                 Required = true,
-                Content = new Dictionary<string, OpenApiMediaType>()
+                Content = new Dictionary<string, OpenApiMediaType>
                 {
-                    ["application/json"] = new OpenApiMediaType()
+                    ["application/json"] = new OpenApiMediaType
                     {
-                        Schema = new OpenApiSchema()
+                        Schema = new OpenApiSchema
                         {
                             Type = "number",
                             Minimum = 5,
-                            Maximum =  10
+                            Maximum = 10
                         }
                     }
                 }
             },
-            Responses = new OpenApiResponses()
+            Responses = new OpenApiResponses
             {
-                ["200"] = new OpenApiResponse()
+                ["200"] = new OpenApiResponse
                 {
-                    Reference = new OpenApiReference()
+                    Reference = new OpenApiReference
                     {
                         Id = "response1",
                         Type = ReferenceType.Response
                     }
                 },
-                ["400"] = new OpenApiResponse()
+                ["400"] = new OpenApiResponse
                 {
-                    Content = new Dictionary<string, OpenApiMediaType>()
+                    Content = new Dictionary<string, OpenApiMediaType>
                     {
-                        ["application/json"] = new OpenApiMediaType()
+                        ["application/json"] = new OpenApiMediaType
                         {
-                            Schema = new OpenApiSchema()
+                            Schema = new OpenApiSchema
                             {
                                 Type = "number",
                                 Minimum = 5,
@@ -93,9 +82,9 @@ namespace Microsoft.OpenApi.Tests.Models
                     }
                 }
             },
-            Servers = new List<OpenApiServer>()
+            Servers = new List<OpenApiServer>
             {
-                new OpenApiServer()
+                new OpenApiServer
                 {
                     Url = "http://server.com",
                     Description = "serverDescription"
@@ -105,16 +94,16 @@ namespace Microsoft.OpenApi.Tests.Models
 
         public static OpenApiOperation AdvancedOperationWithTagsAndSecurity = new OpenApiOperation
         {
-            Tags = new List<OpenApiTag>()
+            Tags = new List<OpenApiTag>
             {
-                new OpenApiTag()
+                new OpenApiTag
                 {
                     Name = "tagName1",
                     Description = "tagDescription1",
                 },
-                new OpenApiTag()
+                new OpenApiTag
                 {
-                    Reference = new OpenApiReference()
+                    Reference = new OpenApiReference
                     {
                         Id = "tagId1",
                         Type = ReferenceType.Tag
@@ -123,34 +112,34 @@ namespace Microsoft.OpenApi.Tests.Models
             },
             Summary = "summary1",
             Description = "operationDescription",
-            ExternalDocs = new OpenApiExternalDocs()
+            ExternalDocs = new OpenApiExternalDocs
             {
                 Description = "externalDocsDescription",
                 Url = new Uri("http://external.com")
             },
             OperationId = "operationId1",
-            Parameters = new List<OpenApiParameter>()
+            Parameters = new List<OpenApiParameter>
             {
-                new OpenApiParameter()
+                new OpenApiParameter
                 {
                     In = ParameterLocation.Path,
                     Name = "parameter1"
                 },
-                new OpenApiParameter()
+                new OpenApiParameter
                 {
                     In = ParameterLocation.Header,
                     Name = "parameter2"
                 }
             },
-            RequestBody = new OpenApiRequestBody()
+            RequestBody = new OpenApiRequestBody
             {
                 Description = "description2",
                 Required = true,
-                Content = new Dictionary<string, OpenApiMediaType>()
+                Content = new Dictionary<string, OpenApiMediaType>
                 {
-                    ["application/json"] = new OpenApiMediaType()
+                    ["application/json"] = new OpenApiMediaType
                     {
-                        Schema = new OpenApiSchema()
+                        Schema = new OpenApiSchema
                         {
                             Type = "number",
                             Minimum = 5,
@@ -159,23 +148,23 @@ namespace Microsoft.OpenApi.Tests.Models
                     }
                 }
             },
-            Responses = new OpenApiResponses()
+            Responses = new OpenApiResponses
             {
-                ["200"] = new OpenApiResponse()
+                ["200"] = new OpenApiResponse
                 {
-                    Reference = new OpenApiReference()
+                    Reference = new OpenApiReference
                     {
                         Id = "response1",
                         Type = ReferenceType.Response
                     }
                 },
-                ["400"] = new OpenApiResponse()
+                ["400"] = new OpenApiResponse
                 {
-                    Content = new Dictionary<string, OpenApiMediaType>()
+                    Content = new Dictionary<string, OpenApiMediaType>
                     {
-                        ["application/json"] = new OpenApiMediaType()
+                        ["application/json"] = new OpenApiMediaType
                         {
-                            Schema = new OpenApiSchema()
+                            Schema = new OpenApiSchema
                             {
                                 Type = "number",
                                 Minimum = 5,
@@ -185,41 +174,48 @@ namespace Microsoft.OpenApi.Tests.Models
                     }
                 }
             },
-            Security = new List<OpenApiSecurityRequirement>()
+            Security = new List<OpenApiSecurityRequirement>
             {
-                new OpenApiSecurityRequirement()
+                new OpenApiSecurityRequirement
                 {
-                    [new OpenApiSecurityScheme()
+                    [new OpenApiSecurityScheme
                     {
-                        Reference = new OpenApiReference()
+                        Reference = new OpenApiReference
                         {
                             Id = "securitySchemeId1",
                             Type = ReferenceType.SecurityScheme
                         }
                     }] = new List<string>(),
-                    [new OpenApiSecurityScheme()
+                    [new OpenApiSecurityScheme
                     {
-                        Reference = new OpenApiReference()
+                        Reference = new OpenApiReference
                         {
                             Id = "securitySchemeId2",
                             Type = ReferenceType.SecurityScheme
                         }
-                    }] = new List<string>()
+                    }] = new List<string>
                     {
                         "scopeName1",
                         "scopeName2"
                     }
                 }
             },
-            Servers = new List<OpenApiServer>()
+            Servers = new List<OpenApiServer>
             {
-                new OpenApiServer()
+                new OpenApiServer
                 {
                     Url = "http://server.com",
                     Description = "serverDescription"
                 }
             }
         };
+
+        private readonly ITestOutputHelper _output;
+
+        public OpenApiOperationTests(ITestOutputHelper output)
+        {
+            _output = output;
+        }
 
         [Fact]
         public void SerializeBasicOperationAsV3JsonWorks()
@@ -230,9 +226,7 @@ namespace Microsoft.OpenApi.Tests.Models
 }";
 
             // Act
-                var actual = BasicOperation.SerializeAsJson(OpenApiSpecVersion.OpenApi3_0);
-
-            _output.WriteLine(actual);
+            var actual = BasicOperation.SerializeAsJson(OpenApiSpecVersion.OpenApi3_0_0);
 
             // Assert
             actual = actual.MakeLineBreaksEnvironmentNeutral();
@@ -300,16 +294,14 @@ namespace Microsoft.OpenApi.Tests.Models
 }";
 
             // Act
-            var actual = AdvancedOperation.SerializeAsJson(OpenApiSpecVersion.OpenApi3_0);
-
-            _output.WriteLine(actual);
+            var actual = AdvancedOperation.SerializeAsJson(OpenApiSpecVersion.OpenApi3_0_0);
 
             // Assert
             actual = actual.MakeLineBreaksEnvironmentNeutral();
             expected = expected.MakeLineBreaksEnvironmentNeutral();
             actual.Should().Be(expected);
         }
-        
+
         [Fact]
         public void SerializeAdvancedOperationWithTagAndSecurityAsV3JsonWorks()
         {
@@ -383,9 +375,7 @@ namespace Microsoft.OpenApi.Tests.Models
 }";
 
             // Act
-            var actual = AdvancedOperationWithTagsAndSecurity.SerializeAsJson(OpenApiSpecVersion.OpenApi3_0);
-
-            _output.WriteLine(actual);
+            var actual = AdvancedOperationWithTagsAndSecurity.SerializeAsJson(OpenApiSpecVersion.OpenApi3_0_0);
 
             // Assert
             actual = actual.MakeLineBreaksEnvironmentNeutral();
@@ -403,8 +393,6 @@ namespace Microsoft.OpenApi.Tests.Models
 
             // Act
             var actual = BasicOperation.SerializeAsJson(OpenApiSpecVersion.OpenApi2_0);
-
-            _output.WriteLine(actual);
 
             // Assert
             actual = actual.MakeLineBreaksEnvironmentNeutral();
@@ -469,8 +457,6 @@ namespace Microsoft.OpenApi.Tests.Models
 
             // Act
             var actual = AdvancedOperation.SerializeAsJson(OpenApiSpecVersion.OpenApi2_0);
-
-            _output.WriteLine(actual);
 
             // Assert
             actual = actual.MakeLineBreaksEnvironmentNeutral();
@@ -549,7 +535,27 @@ namespace Microsoft.OpenApi.Tests.Models
             // Act
             var actual = AdvancedOperationWithTagsAndSecurity.SerializeAsJson(OpenApiSpecVersion.OpenApi2_0);
 
-            _output.WriteLine(actual);
+            // Assert
+            actual = actual.MakeLineBreaksEnvironmentNeutral();
+            expected = expected.MakeLineBreaksEnvironmentNeutral();
+            actual.Should().Be(expected);
+        }
+
+        [Fact]
+        public void SerializeOperationWithNullCollectionAsV2JsonWorks()
+        {
+            // Arrange
+            var expected = @"{
+  ""responses"": { }
+}";
+            var operation = new OpenApiOperation
+            {
+                Parameters = null,
+                Servers = null,
+            };
+
+            // Act
+            var actual = operation.SerializeAsJson(OpenApiSpecVersion.OpenApi2_0);
 
             // Assert
             actual = actual.MakeLineBreaksEnvironmentNeutral();
